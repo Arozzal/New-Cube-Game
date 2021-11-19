@@ -29,8 +29,6 @@ public class CameraScript : MonoBehaviour
 	{
         if (AxisInterpolation) return;
 
-        Debug.Log("new axis");
-
         AxisInterpolation = true;
         oldDistanceAxis = distanceAxis;
         newDistanceAxis = axis;
@@ -51,19 +49,28 @@ public class CameraScript : MonoBehaviour
     {
 		if (AxisInterpolation)
 		{
-            steps += Time.deltaTime;
-            distanceAxis = Vector3.Lerp(oldDistanceAxis, newDistanceAxis, steps);
-            distanceRotation = Quaternion.Lerp(oldDistanceRotation, newDistanceRotation, steps);
-            GameObject.Find("Player").transform.position = Vector3.Lerp(oldPlPos, newPlPos, steps);
             if (steps > 1)
 			{
-                AxisInterpolation = false;
-                steps = 0;
+                StartCoroutine(DelayedEnable());
 			}
+			else
+			{
+                steps += Time.deltaTime;
+                distanceAxis = Vector3.Lerp(oldDistanceAxis, newDistanceAxis, steps);
+                distanceRotation = Quaternion.Lerp(oldDistanceRotation, newDistanceRotation, steps);
+                GameObject.Find("Player").transform.position = Vector3.Lerp(oldPlPos, newPlPos, steps);
+            }
 
 		}
 
         transform.rotation = distanceRotation;
         transform.position = player.transform.position + distanceAxis + new Vector3(0, 0, 0);
+    }
+
+    IEnumerator DelayedEnable()
+	{
+        yield return new WaitForSeconds(0.1f);
+        AxisInterpolation = false;
+        steps = 0;
     }
 }
